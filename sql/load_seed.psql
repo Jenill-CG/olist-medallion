@@ -1,0 +1,12 @@
+\set ON_ERROR_STOP on
+\encoding UTF8
+\timing on
+\copy seed.orders FROM 'data/olist/olist_orders_dataset.csv' WITH (FORMAT csv, HEADER true)
+\copy seed.order_items FROM 'data/olist/olist_order_items_dataset.csv' WITH (FORMAT csv, HEADER true)
+\copy seed.order_payments FROM 'data/olist/olist_order_payments_dataset.csv' WITH (FORMAT csv, HEADER true)
+\copy seed.order_reviews FROM 'data/olist/olist_order_reviews_dataset.csv' WITH (FORMAT csv, HEADER true)
+\copy seed.customers FROM 'data/olist/olist_customers_dataset.csv' WITH (FORMAT csv, HEADER true)
+\copy seed.sellers FROM 'data/olist/olist_sellers_dataset.csv' WITH (FORMAT csv, HEADER true)
+\copy seed.products FROM 'data/olist/olist_products_dataset.csv' WITH (FORMAT csv, HEADER true)
+\copy seed.geolocation FROM 'data/olist/olist_geolocation_dataset.csv' WITH (FORMAT csv, HEADER true)
+\copy seed.category_translation FROM 'data/olist/product_category_name_translation.csv' WITH (FORMAT csv, HEADER true)
