@@ -1,0 +1,11 @@
+{
+  "chatMode": "Agent",
+  "toolExecutionPreference": "default",
+  "perToolExecutionPreferences": {},
+  "perThreadToolExecutionPreferences": {},
+  "perThreadLastUserMessageAt": {},
+  "autoApproveByDefault": true,
+  "extraSkillDirectories": [],
+  "disabledSkillNames": [],
+  "lastModified": 1791168221926
+}
