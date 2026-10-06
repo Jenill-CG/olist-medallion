@@ -63,9 +63,9 @@ BEGIN
   IF random() < 0.25 THEN
     UPDATE app.products SET product_photos_qty = coalesce(product_photos_qty, 0) + 1
       WHERE product_id IN (SELECT product_id FROM app.products ORDER BY random() LIMIT 3);
-    UPDATE app.sellers s SET seller_zip_code_prefix = g.zip_prefix, seller_city = g.city
+    UPDATE app.sellers sl SET seller_zip_code_prefix = g.zip_prefix, seller_city = g.city
       FROM (SELECT zip_prefix, city, state FROM ref.ref_geolocation ORDER BY random() LIMIT 1) g
-      WHERE s.seller_id = (SELECT seller_id FROM app.sellers x WHERE x.seller_state = g.state ORDER BY random() LIMIT 1);
+      WHERE sl.seller_id = (SELECT seller_id FROM app.sellers x WHERE x.seller_state = g.state ORDER BY random() LIMIT 1);
   END IF;
 
   UPDATE etl.replay_state SET sim_ts = w_to WHERE id = 1;
