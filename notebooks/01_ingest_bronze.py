@@ -125,10 +125,27 @@ if failed:   # makes the scheduled Job show red if anything failed
 
 # MAGIC %sql
 # MAGIC -- Bronze vs source (bronze may be slightly behind if a replay tick happened since)
-# MAGIC SELECT 'orders' t,    (SELECT count(*) FROM olist.bronze.orders)    bronze, (SELECT count(*) FROM olist_src.app.orders)    source
-# MAGIC UNION ALL SELECT 'order_items', (SELECT count(*) FROM olist.bronze.order_items), (SELECT count(*) FROM olist_src.app.order_items)
-# MAGIC UNION ALL SELECT 'sellers',     (SELECT count(*) FROM olist.bronze.sellers),     (SELECT count(*) FROM olist_src.app.sellers)
-# MAGIC UNION ALL SELECT 'products',    (SELECT count(*) FROM olist.bronze.products),    (SELECT count(*) FROM olist_src.app.products);
+# MAGIC SELECT 'orders' t,
+# MAGIC (SELECT count(*) FROM olist.bronze.orders)    bronze, 
+# MAGIC (SELECT count(*) FROM olist_src.app.orders)    source
+# MAGIC UNION ALL 
+# MAGIC SELECT 'order_items', (SELECT count(*) FROM olist.bronze.order_items), 
+# MAGIC (SELECT count(*) FROM olist_src.app.order_items)
+# MAGIC UNION ALL 
+# MAGIC SELECT 'sellers',
+# MAGIC (SELECT count(*) FROM olist.bronze.sellers),     
+# MAGIC (SELECT count(*) FROM olist_src.app.sellers)
+# MAGIC UNION ALL 
+# MAGIC SELECT 'products',
+# MAGIC (SELECT count(*) FROM olist.bronze.products),
+# MAGIC (SELECT count(*) FROM olist_src.app.products);
 # MAGIC
 # MAGIC SELECT * FROM olist.ops.watermarks ORDER BY source_table;   -- 7 rows (fewer if a table was still empty)
 # MAGIC SELECT * FROM olist.ops.run_log    ORDER BY started_at;     -- 12 rows, all success
+
+# COMMAND ----------
+
+
+
+# COMMAND ----------
+
