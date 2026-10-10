@@ -1,0 +1,673 @@
+{
+  "datasets": [
+    {
+      "name": "9311367b",
+      "displayName": "kpis",
+      "queryLines": [
+        "SELECT sum(price)                                   AS revenue,\r\n",
+        "       count(DISTINCT order_id)                     AS orders,\r\n",
+        "       sum(price) / count(DISTINCT order_id)        AS avg_order_value,\r\n",
+        "       avg(review_score)                            AS avg_review,\r\n",
+        "       avg(CASE WHEN is_late THEN 1.0 ELSE 0.0 END)\r\n",
+        "           FILTER (WHERE delivered_at IS NOT NULL)  AS late_share\r\n",
+        "FROM olist.gold.fact_sales;\r\n"
+      ]
+    },
+    {
+      "name": "18a0f7ad",
+      "displayName": "monthly_sales",
+      "queryLines": [
+        "SELECT to_date(year_month || '-01') AS month,\r\n",
+        "       sum(orders)                  AS orders,\r\n",
+        "       sum(revenue)                 AS revenue\r\n",
+        "FROM olist.gold.agg_daily_sales\r\n",
+        "GROUP BY year_month\r\n",
+        "ORDER BY month"
+      ]
+    },
+    {
+      "name": "6a1a5fb2",
+      "displayName": "top_categories",
+      "queryLines": [
+        "SELECT category, revenue, orders, round(avg_review_score, 2) AS avg_review\r\n",
+        "FROM olist.gold.agg_category_sales\r\n",
+        "ORDER BY revenue DESC\r\n",
+        "LIMIT 10"
+      ]
+    },
+    {
+      "name": "96b65539",
+      "displayName": "state_sales",
+      "queryLines": [
+        "SELECT state_code, state_name, region, orders, revenue,\r\n",
+        "       round(avg_delivery_days, 1)  AS avg_delivery_days,\r\n",
+        "       round(late_share * 100, 1)   AS late_pct\r\n",
+        "FROM olist.gold.agg_state_sales\r\n",
+        "ORDER BY revenue DESC"
+      ]
+    },
+    {
+      "name": "c3ae2715",
+      "displayName": "order_status",
+      "queryLines": [
+        "SELECT order_status, count(DISTINCT order_id) AS orders\r\n",
+        "FROM olist.gold.fact_sales\r\n",
+        "GROUP BY order_status\r\n",
+        "ORDER BY orders DESC"
+      ]
+    },
+    {
+      "name": "caa9d77a",
+      "displayName": "freshness",
+      "queryLines": [
+        "SELECT\r\n",
+        "latest_source_change,\r\n",
+        "date_format(from_utc_timestamp(gold_loaded_at, 'Asia/Kolkata'), 'dd MMM yyyy, hh:mm a') || ' IST' AS gold_loaded_at_ist,\r\n",
+        "lag_minutes\r\n",
+        "FROM olist.ops.pipeline_freshness"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "7075f5ca",
+      "displayName": "dashboard_p1",
+      "layout": [
+        {
+          "widget": {
+            "name": "revenue-rs",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "9311367b",
+                  "fields": [
+                    {
+                      "name": "sum(revenue)",
+                      "expression": "SUM(`revenue`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Revenue (Rs.)",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(revenue)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "23cf781a",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "9311367b",
+                  "fields": [
+                    {
+                      "name": "sum(orders)",
+                      "expression": "SUM(`orders`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "orders",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(orders)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 1,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "3c9abf84",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "9311367b",
+                  "fields": [
+                    {
+                      "name": "avg(avg_order_value)",
+                      "expression": "AVG(`avg_order_value`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "avg\\_order\\_value",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "avg(avg_order_value)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 1,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "6bc2f7c3",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "9311367b",
+                  "fields": [
+                    {
+                      "name": "avg(avg_review)",
+                      "expression": "AVG(`avg_review`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "avg\\_review\n<p>&nbsp;</p>\n",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "avg(avg_review)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 1,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "monthly-revenue",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "18a0f7ad",
+                  "fields": [
+                    {
+                      "name": "monthly(month)",
+                      "expression": "DATE_TRUNC(\"MONTH\", `month`)"
+                    },
+                    {
+                      "name": "sum(revenue)",
+                      "expression": "SUM(`revenue`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Monthly revenue\n<p>&nbsp;</p>\n",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "mark": {
+                "lineShape": "linear"
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "monthly(month)",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(revenue)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": false
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 12,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "top-categories",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "6a1a5fb2",
+                  "fields": [
+                    {
+                      "name": "sum(revenue)",
+                      "expression": "SUM(`revenue`)"
+                    },
+                    {
+                      "name": "category",
+                      "expression": "`category`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Top\\_categories",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "sum(revenue)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "category",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 6,
+            "width": 7,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "revenue-by-state",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "96b65539",
+                  "fields": [
+                    {
+                      "name": "region",
+                      "expression": "`region`"
+                    },
+                    {
+                      "name": "sum(revenue)",
+                      "expression": "SUM(`revenue`)"
+                    },
+                    {
+                      "name": "state_code",
+                      "expression": "`state_code`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Revenue by state",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "sum(revenue)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "state_code",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "color": {
+                  "fieldName": "region",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 7,
+            "y": 6,
+            "width": 5,
+            "height": 11
+          }
+        },
+        {
+          "widget": {
+            "name": "delivery-by-state",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "96b65539",
+                  "fields": [
+                    {
+                      "name": "state_name",
+                      "expression": "`state_name`"
+                    },
+                    {
+                      "name": "state_code",
+                      "expression": "`state_code`"
+                    },
+                    {
+                      "name": "region",
+                      "expression": "`region`"
+                    },
+                    {
+                      "name": "orders",
+                      "expression": "`orders`"
+                    },
+                    {
+                      "name": "avg_delivery_days",
+                      "expression": "`avg_delivery_days`"
+                    },
+                    {
+                      "name": "late_pct",
+                      "expression": "`late_pct`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Delivery by state",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "state_name"
+                  },
+                  {
+                    "fieldName": "state_code"
+                  },
+                  {
+                    "fieldName": "region"
+                  },
+                  {
+                    "fieldName": "orders"
+                  },
+                  {
+                    "fieldName": "avg_delivery_days"
+                  },
+                  {
+                    "fieldName": "late_pct"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 17,
+            "width": 12,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "order-status",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "c3ae2715",
+                  "fields": [
+                    {
+                      "name": "orders",
+                      "expression": "`orders`"
+                    },
+                    {
+                      "name": "order_status",
+                      "expression": "`order_status`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Order status",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "pie",
+              "encodings": {
+                "angle": {
+                  "fieldName": "orders",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "order_status",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 11,
+            "width": 7,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "1453a551",
+            "multilineTextboxSpec": {
+              "lines": [
+                "<span style=\"text-align:center;display:block;\"><span style=\"font-size:24px\">**olist live shop dashboard**</span></span>"
+              ],
+              "verticalAlign": "VERTICAL_ALIGN_CENTER"
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 7,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "refreshed-at",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "caa9d77a",
+                  "fields": [
+                    {
+                      "name": "gold_loaded_at_ist",
+                      "expression": "`gold_loaded_at_ist`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Last refresh",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "gold_loaded_at_ist",
+                  "style": {
+                    "fontWeight": 400,
+                    "fontStyle": "italic",
+                    "fontSize": 14
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 7,
+            "y": 0,
+            "width": 5,
+            "height": 1
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
