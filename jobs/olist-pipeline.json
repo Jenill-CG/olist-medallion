@@ -1,0 +1,100 @@
+{
+  "created_time": 1791293231220,
+  "creator_user_name": "jenilthakkar208@gmail.com",
+  "job_id": 439167124636447,
+  "run_as_user_name": "jenilthakkar208@gmail.com",
+  "settings": {
+    "email_notifications": {
+      "no_alert_for_skipped_runs": false,
+      "on_failure": [
+        "jenilthakkar208@gmail.com"
+      ]
+    },
+    "format": "MULTI_TASK",
+    "max_concurrent_runs": 1,
+    "name": "olist-pipeline",
+    "notification_settings": {
+      "no_alert_for_canceled_runs": false,
+      "no_alert_for_skipped_runs": false
+    },
+    "performance_target": "PERFORMANCE_OPTIMIZED",
+    "queue": {
+      "enabled": true
+    },
+    "schedule": {
+      "pause_status": "UNPAUSED",
+      "quartz_cron_expression": "0 5 10-19 * * ?",
+      "timezone_id": "Asia/Kolkata"
+    },
+    "tasks": [
+      {
+        "disable_auto_optimization": false,
+        "disabled": false,
+        "email_notifications": {},
+        "max_retries": 1,
+        "min_retry_interval_millis": 300000,
+        "notebook_task": {
+          "notebook_path": "/Workspace/Users/jenilthakkar208@gmail.com/01_ingest_bronze",
+          "source": "WORKSPACE"
+        },
+        "retry_on_timeout": false,
+        "run_if": "ALL_SUCCESS",
+        "task_key": "task_ingest_bronze",
+        "timeout_seconds": 0,
+        "webhook_notifications": {}
+      },
+      {
+        "depends_on": [
+          {
+            "task_key": "task_ingest_bronze"
+          }
+        ],
+        "disabled": false,
+        "email_notifications": {},
+        "notebook_task": {
+          "notebook_path": "/Workspace/Users/jenilthakkar208@gmail.com/02_silver",
+          "source": "WORKSPACE"
+        },
+        "run_if": "ALL_SUCCESS",
+        "task_key": "silver",
+        "timeout_seconds": 0,
+        "webhook_notifications": {}
+      },
+      {
+        "depends_on": [
+          {
+            "task_key": "silver"
+          }
+        ],
+        "disabled": false,
+        "email_notifications": {},
+        "notebook_task": {
+          "notebook_path": "/Workspace/Users/jenilthakkar208@gmail.com/03_gold",
+          "source": "WORKSPACE"
+        },
+        "run_if": "ALL_SUCCESS",
+        "task_key": "gold",
+        "timeout_seconds": 0,
+        "webhook_notifications": {}
+      },
+      {
+        "depends_on": [
+          {
+            "task_key": "gold"
+          }
+        ],
+        "disabled": false,
+        "email_notifications": {},
+        "notebook_task": {
+          "notebook_path": "/Workspace/Users/jenilthakkar208@gmail.com/04_checks",
+          "source": "WORKSPACE"
+        },
+        "run_if": "ALL_SUCCESS",
+        "task_key": "checks",
+        "timeout_seconds": 0
+      }
+    ],
+    "timeout_seconds": 0,
+    "webhook_notifications": {}
+  }
+}
