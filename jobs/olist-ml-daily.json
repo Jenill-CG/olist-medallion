@@ -1,0 +1,36 @@
+{
+  "name": "olist-ml-daily",
+  "max_concurrent_runs": 1,
+  "timeout_seconds": 3600,
+  "schedule": {
+    "quartz_cron_expression": "0 40 10 * * ?",
+    "timezone_id": "Asia/Kolkata",
+    "pause_status": "UNPAUSED"
+  },
+  "email_notifications": {
+    "on_failure": ["jenil@convegenius.ai"]
+  },
+  "tasks": [
+    {
+      "task_key": "ml_features",
+      "notebook_task": {
+        "notebook_path": "/Users/jenilthakkar208@gmail.com//06_ml_features",
+        "source": "WORKSPACE"
+      },
+      "timeout_seconds": 1800,
+      "max_retries": 1,
+      "min_retry_interval_millis": 300000
+    },
+    {
+      "task_key": "score_late_risk",
+      "depends_on": [ { "task_key": "ml_features" } ],
+      "notebook_task": {
+        "notebook_path": "/Users/jenilthakkar208@gmail.com//08_late_delivery_score",
+        "source": "WORKSPACE"
+      },
+      "timeout_seconds": 1800,
+      "max_retries": 1,
+      "min_retry_interval_millis": 300000
+    }
+  ]
+}
