@@ -1,36 +1,89 @@
 {
-  "name": "olist-ml-daily",
-  "max_concurrent_runs": 1,
-  "timeout_seconds": 3600,
-  "schedule": {
-    "quartz_cron_expression": "0 40 10 * * ?",
-    "timezone_id": "Asia/Kolkata",
-    "pause_status": "UNPAUSED"
-  },
-  "email_notifications": {
-    "on_failure": ["jenil@convegenius.ai"]
-  },
-  "tasks": [
-    {
-      "task_key": "ml_features",
-      "notebook_task": {
-        "notebook_path": "/Users/jenilthakkar208@gmail.com//06_ml_features",
-        "source": "WORKSPACE"
-      },
-      "timeout_seconds": 1800,
-      "max_retries": 1,
-      "min_retry_interval_millis": 300000
+  "created_time": 1791970536485,
+  "creator_user_name": "jenilthakkar208@gmail.com",
+  "job_id": 1090849162783052,
+  "run_as_user_name": "jenilthakkar208@gmail.com",
+  "settings": {
+    "email_notifications": {
+      "no_alert_for_skipped_runs": false,
+      "on_failure": [
+        "jenil@convegenius.ai"
+      ]
     },
-    {
-      "task_key": "score_late_risk",
-      "depends_on": [ { "task_key": "ml_features" } ],
-      "notebook_task": {
-        "notebook_path": "/Users/jenilthakkar208@gmail.com//08_late_delivery_score",
-        "source": "WORKSPACE"
+    "environments": [
+      {
+        "environment_key": "Default",
+        "spec": {
+          "environment_version": "6"
+        }
+      }
+    ],
+    "format": "MULTI_TASK",
+    "max_concurrent_runs": 1,
+    "name": "olist-ml-daily",
+    "performance_target": "PERFORMANCE_OPTIMIZED",
+    "queue": {
+      "enabled": true
+    },
+    "schedule": {
+      "pause_status": "UNPAUSED",
+      "quartz_cron_expression": "0 40 10 * * ?",
+      "timezone_id": "Asia/Kolkata"
+    },
+    "tasks": [
+      {
+        "disabled": false,
+        "email_notifications": {},
+        "max_retries": 1,
+        "min_retry_interval_millis": 300000,
+        "notebook_task": {
+          "notebook_path": "/Workspace/Users/jenilthakkar208@gmail.com//06_ml_features",
+          "source": "WORKSPACE"
+        },
+        "retry_on_timeout": false,
+        "run_if": "ALL_SUCCESS",
+        "task_key": "ml_features",
+        "timeout_seconds": 1800,
+        "webhook_notifications": {}
       },
-      "timeout_seconds": 1800,
-      "max_retries": 1,
-      "min_retry_interval_millis": 300000
-    }
-  ]
+      {
+        "depends_on": [
+          {
+            "task_key": "ml_features"
+          }
+        ],
+        "disabled": false,
+        "email_notifications": {},
+        "max_retries": 1,
+        "min_retry_interval_millis": 300000,
+        "notebook_task": {
+          "notebook_path": "/Workspace/Users/jenilthakkar208@gmail.com//08_late_delivery_score",
+          "source": "WORKSPACE"
+        },
+        "retry_on_timeout": false,
+        "run_if": "ALL_SUCCESS",
+        "task_key": "score_late_risk",
+        "timeout_seconds": 1800,
+        "webhook_notifications": {}
+      },
+      {
+        "depends_on": [
+          {
+            "task_key": "score_late_risk"
+          }
+        ],
+        "disabled": false,
+        "email_notifications": {},
+        "environment_key": "Default",
+        "run_if": "ALL_SUCCESS",
+        "spark_python_task": {
+          "python_file": "/Workspace/Users/jenilthakkar208@gmail.com/10_call_queue.py"
+        },
+        "task_key": "call_queue",
+        "timeout_seconds": 0
+      }
+    ],
+    "timeout_seconds": 3600,
+    "webhook_notifications": {}
+  }
 }
