@@ -1,0 +1,55 @@
+# Deploys reverse_etl/lambda/trigger_calls.py to the AWS Lambda "olist-trigger-calls"
+# - runs on every push to main that changes the Lambda code, or manually (Actions tab -> Run workflow)
+# - no AWS keys in GitHub: logs in with OIDC to the role in repository variable AWS_DEPLOY_ROLE_ARN
+name: Deploy Lambda (olist-trigger-calls)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "reverse_etl/lambda/**"
+  workflow_dispatch:
+
+permissions:
+  id-token: write     # needed for the OIDC login to AWS
+  contents: read
+
+concurrency:
+  group: deploy-lambda
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check the code compiles
+        run: python -m py_compile reverse_etl/lambda/trigger_calls.py
+
+      - name: Log in to AWS (OIDC, no stored keys)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ap-south-1
+
+      - name: Package (the console handler is lambda_function.lambda_handler)
+        run: |
+          mkdir -p build
+          cp reverse_etl/lambda/trigger_calls.py build/lambda_function.py
+          cd build && zip -q ../function.zip lambda_function.py
+
+      - name: Deploy to Lambda
+        run: |
+          aws lambda update-function-code \
+            --function-name olist-trigger-calls \
+            --zip-file fileb://function.zip > /dev/null
+          aws lambda wait function-updated --function-name olist-trigger-calls
+          aws lambda get-function --function-name olist-trigger-calls \
+            --query 'Configuration.[FunctionName,LastModified,CodeSha256]' --output text
