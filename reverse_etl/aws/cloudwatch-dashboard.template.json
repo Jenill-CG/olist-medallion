@@ -1,0 +1,65 @@
+{
+  "widgets": [
+    {
+      "type": "text", "x": 0, "y": 0, "width": 24, "height": 2,
+      "properties": {
+        "markdown": "## Olist POC - delivery side\nDatabricks writes the daily call list to S3 -> EventBridge -> Lambda **olist-trigger-calls** -> Bolna. Mode is read from SSM `/olist/bolna/mode` (dry_run = batch created, never scheduled)."
+      }
+    },
+    {
+      "type": "metric", "x": 0, "y": 2, "width": 12, "height": 6,
+      "properties": {
+        "title": "Reverse ETL - rows sent, batches, test calls (per day)",
+        "region": "ap-south-1", "view": "bar", "stat": "Sum", "period": 86400,
+        "metrics": [
+          ["Olist/ReverseETL", "RowsReceived", "Service", "trigger_calls"],
+          [".", "BatchesCreated", ".", "."],
+          [".", "TestCalls", ".", "."]
+        ]
+      }
+    },
+    {
+      "type": "metric", "x": 12, "y": 2, "width": 12, "height": 6,
+      "properties": {
+        "title": "Errors - Lambda, Bolna API, CSV validation (per hour)",
+        "region": "ap-south-1", "view": "timeSeries", "stat": "Sum", "period": 3600,
+        "metrics": [
+          ["AWS/Lambda", "Errors", "FunctionName", "olist-trigger-calls"],
+          ["Olist/ReverseETL", "BolnaApiErrors", "Service", "trigger_calls"],
+          [".", "ValidationErrors", ".", "."]
+        ]
+      }
+    },
+    {
+      "type": "metric", "x": 0, "y": 8, "width": 12, "height": 6,
+      "properties": {
+        "title": "Lambda - invocations and duration p95 (ms)",
+        "region": "ap-south-1", "view": "timeSeries", "period": 3600,
+        "metrics": [
+          ["AWS/Lambda", "Invocations", "FunctionName", "olist-trigger-calls", { "stat": "Sum" }],
+          [".", "Duration", ".", ".", { "stat": "p95", "yAxis": "right" }]
+        ]
+      }
+    },
+    {
+      "type": "metric", "x": 12, "y": 8, "width": 12, "height": 6,
+      "properties": {
+        "title": "RDS (source) - CPU %, connections, free storage (bytes)",
+        "region": "ap-south-1", "view": "timeSeries", "period": 300,
+        "metrics": [
+          ["AWS/RDS", "CPUUtilization", "DBInstanceIdentifier", "olist-source", { "stat": "Average" }],
+          [".", "DatabaseConnections", ".", ".", { "stat": "Average" }],
+          [".", "FreeStorageSpace", ".", ".", { "stat": "Minimum", "yAxis": "right" }]
+        ]
+      }
+    },
+    {
+      "type": "log", "x": 0, "y": 14, "width": 24, "height": 6,
+      "properties": {
+        "title": "Latest Lambda runs",
+        "region": "ap-south-1", "view": "table",
+        "query": "SOURCE '/aws/lambda/olist-trigger-calls' | filter event = 'trigger_calls' | fields @timestamp, sync_id, mode, rows, status, reference_id, error | sort @timestamp desc | limit 20"
+      }
+    }
+  ]
+}
