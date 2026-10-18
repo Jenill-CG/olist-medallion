@@ -158,7 +158,7 @@ It logs in to AWS with **OIDC** — no stored AWS keys — through a role that t
 | Data-quality checks | 16 / 16 PASS |
 | Reverse ETL | dry-run Bolna batch created; one real test call completed |
 | Alarms | test alarm delivered by email |
-| Cost | TODO: AWS month-to-date $__ ; Databricks trial credits used __ ; Bolna credit used $__ |
+| Cost | TODO: AWS month-to-date $6.50 ; Databricks trial credits used $182 ; Bolna credit used $1 |
 
 ---
 
